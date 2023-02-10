@@ -1,0 +1,34 @@
+<h1>Search</h1>
+<%= form_tag("/search", method: "get") do %>
+  <%= label_tag(:query, "Search for:") %>
+  <%= text_field_tag(:query) %>
+  <%= select_tag(:index, options_for_select([['Systems', 'system'], ['Files', 'driver']])) %>
+  <%= submit_tag("Search") %>
+<% end %>
+<hr>
+<%
+  if params[:query] == "" && params[:index] == "" then
+    concat "Both query and index must be provided!"
+  elsif !params[:query].nil? && !params[:index].nil? then
+    query = params[:query]
+    index = params[:index]
+    concat "<h2>Hits for #{query} in #{index}</h2>".html_safe
+    response = Net::HTTP.get(URI.parse("http://localhost:7700/indexes/#{index}/search?q=#{query}"), {"Authorization" => "Bearer TOKEN"});
+    data = JSON.parse(response)
+    hits = data["hits"]
+    concat "<i>Took #{data["processingTimeMs"]}ms</i><br>".html_safe
+    hits.each do |hit|
+      if index == "system" then
+        concat "<a href=\"/system?id=#{hit["id"]}\">#{hit["manufacturer"]["name"]} #{hit["model"]}</a><br>".html_safe
+      elsif index == "driver" then
+        operating_systems = []
+        hit["operating_systems"].each do |os|
+          operating_systems.append(os["name"])
+        end
+        concat "<h2>#{hit["name"]} (#{hit["file"][0]["name"]})</h2><p><b>Operating Systems:</b> #{operating_systems.join(", ")}<br><a href=\"https://cms.nickandfloppy.com#{hit["file"][0]["url"]}\">Download</a></p>".html_safe
+      else
+        concat "Invalid scope!"
+      end
+    end
+  end
+%>
