@@ -13,7 +13,7 @@
     query = params[:query]
     index = params[:index]
     concat "<h2>Hits for #{query} in #{index}</h2>".html_safe
-    response = Net::HTTP.get(URI.parse("http://localhost:7700/indexes/#{index}/search?q=#{query}"), {"Authorization" => "Bearer TOKEN"});
+    response = Net::HTTP.get(URI.parse("http://localhost:7700/indexes/#{index}/search?q=#{query}"), {"Authorization" => "Bearer #{ENV["SEARCH_TOKEN"]}"});
     data = JSON.parse(response)
     hits = data["hits"]
     concat "<i>Took #{data["processingTimeMs"]}ms</i><br>".html_safe

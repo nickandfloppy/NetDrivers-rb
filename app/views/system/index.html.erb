@@ -2,12 +2,12 @@
 <%
   if !params[:id].nil? && params[:id].to_i >= 1 then
     id = params[:id].to_i
-    response = Net::HTTP.get(URI.parse("http://localhost:7700/indexes/system/documents/system-#{id}"), {"Authorization" => "Bearer TOKEN"});
+    response = Net::HTTP.get(URI.parse("http://localhost:7700/indexes/system/documents/system-#{id}"), {"Authorization" => "Bearer #{ENV["SEARCH_TOKEN"]}"});
     data = JSON.parse(response)
     concat "<h1>#{data["manufacturer"]["name"]} #{data["model"]}</h1>".html_safe
     if data["drivers"].length() >= 1 then
       data["drivers"].each do |driver|
-        drv_response = Net::HTTP.get(URI.parse("http://localhost:7700/indexes/driver/documents/driver-#{driver["id"]}"), {"Authorization" => "Bearer TOKEN"});
+        drv_response = Net::HTTP.get(URI.parse("http://localhost:7700/indexes/driver/documents/driver-#{driver["id"]}"), {"Authorization" => "Bearer #{ENV["SEARCH_TOKEN"]}"});
         drv = JSON.parse(drv_response)
         operating_systems = []
         drv["operating_systems"].each do |os|
