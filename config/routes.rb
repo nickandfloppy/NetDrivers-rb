@@ -5,5 +5,5 @@ Rails.application.routes.draw do
   root "root#index"
   get "/search", to: "search#index"
   get "/system", to: "system#index"
-  post "/search", to: "search#index"
+  get "/device", to: "device#index"
 end

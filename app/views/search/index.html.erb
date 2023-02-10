@@ -2,7 +2,7 @@
 <%= form_tag("/search", method: "get") do %>
   <%= label_tag(:query, "Search for:") %>
   <%= text_field_tag(:query) %>
-  <%= select_tag(:index, options_for_select([['Systems', 'system'], ['Files', 'driver']])) %>
+  <%= select_tag(:index, options_for_select([['Systems', 'system'], ['Devices', 'device'], ['Files', 'driver']])) %>
   <%= submit_tag("Search") %>
 <% end %>
 <hr>
@@ -19,6 +19,8 @@
     concat "<i>Took #{data["processingTimeMs"]}ms</i><br>".html_safe
     hits.each do |hit|
       if index == "system" then
+        concat "<a href=\"/system?id=#{hit["id"]}\">#{hit["manufacturer"]["name"]} #{hit["model"]}</a><br>".html_safe
+      elsif index == "device" then
         concat "<a href=\"/system?id=#{hit["id"]}\">#{hit["manufacturer"]["name"]} #{hit["model"]}</a><br>".html_safe
       elsif index == "driver" then
         operating_systems = []

@@ -1,0 +1,22 @@
+<a href="/search">Back to search</a><hr>
+<%
+  if !params[:id].nil? && params[:id].to_i >= 1 then
+    id = params[:id].to_i
+    response = Net::HTTP.get(URI.parse("http://localhost:7700/indexes/device/documents/device-#{id}"), {"Authorization" => "Bearer #{ENV["SEARCH_TOKEN"]}"});
+    data = JSON.parse(response)
+    concat "<h1>#{data["manufacturer"]["name"]} #{data["model"]}</h1>".html_safe
+    if data["drivers"].length() >= 1 then
+      data["drivers"].each do |driver|
+        drv_response = Net::HTTP.get(URI.parse("http://localhost:7700/indexes/driver/documents/driver-#{driver["id"]}"), {"Authorization" => "Bearer #{ENV["SEARCH_TOKEN"]}"});
+        drv = JSON.parse(drv_response)
+        operating_systems = []
+        drv["operating_systems"].each do |os|
+          operating_systems.append(os["name"])
+        end
+        concat "<h2>#{drv["name"]} (#{drv["file"][0]["name"]})</h2><p><b>Operating Systems:</b> #{operating_systems.join(", ")}<br><a href=\"https://cms.nickandfloppy.com#{drv["file"][0]["url"]}\">Download</a></p>".html_safe
+      end
+    else
+      concat "<p>No files for #{data["manufacturer"]["name"]} #{data["model"]}!</p>".html_safe
+    end
+  end
+%>
