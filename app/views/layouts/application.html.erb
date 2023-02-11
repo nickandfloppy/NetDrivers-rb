@@ -12,5 +12,9 @@
 
   <body>
     <%= yield %>
+    <div style="bottom: 0%;position: fixed; width: 99%;">
+      <hr>
+      <address>Powered by Ruby <%=RUBY_VERSION %> and Rails <%=Rails.version %></address>
+    </div>
   </body>
 </html>
