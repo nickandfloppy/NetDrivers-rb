@@ -12,11 +12,10 @@
   elsif !params[:query].nil? && !params[:index].nil? then
     query = params[:query]
     index = params[:index]
-    concat "<h2>Hits for #{query} in #{index}</h2>".html_safe
     response = Net::HTTP.get(URI.parse("http://localhost:7700/indexes/#{index}/search?q=#{query}"), {"Authorization" => "Bearer #{ENV["SEARCH_TOKEN"]}"});
     data = JSON.parse(response)
     hits = data["hits"]
-    concat "<i>Took #{data["processingTimeMs"]}ms</i><br>".html_safe
+    concat "<h3>#{hits.length()} hits for #{query} in #{index} (Took #{data["processingTimeMs"]}ms)</h3>".html_safe
     hits.each do |hit|
       if index == "system" then
         concat "<a href=\"/system?id=#{hit["id"]}\">#{hit["manufacturer"]["name"]} #{hit["model"]}</a><br>".html_safe
