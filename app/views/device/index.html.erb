@@ -2,14 +2,14 @@
 <%
   if !params[:id].nil? && params[:id].to_i >= 1 then
     id = params[:id].to_i
-    response = Net::HTTP.get(URI.parse("http://localhost:7700/indexes/device/documents/device-#{id}"), {"Authorization" => "Bearer #{ENV["SEARCH_TOKEN"]}"});
+    response = Net::HTTP.get(URI.parse("#{ENV["MEILISEARCH_ROOT_URL"]}/indexes/device/documents/device-#{id}"), {"Authorization" => "Bearer #{ENV["MEILISEARCH_TOKEN"]}"});
     data = JSON.parse(response)
     device_name = "#{data["manufacturer"]["name"]} #{data["model"]}"
     content_for(:html_title) { device_name }
     concat "<h1>#{device_name}</h1>".html_safe
     if data["drivers"].length() >= 1 then
       data["drivers"].each do |driver|
-        drv_response = Net::HTTP.get(URI.parse("http://localhost:7700/indexes/driver/documents/driver-#{driver["id"]}"), {"Authorization" => "Bearer #{ENV["SEARCH_TOKEN"]}"});
+        drv_response = Net::HTTP.get(URI.parse("#{ENV["MEILISEARCH_ROOT_URL"]}/indexes/driver/documents/driver-#{driver["id"]}"), {"Authorization" => "Bearer #{ENV["MEILISEARCH_TOKEN"]}"});
         drv = JSON.parse(drv_response)
         operating_systems = []
         drv["operating_systems"].each do |os|

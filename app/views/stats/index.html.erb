@@ -2,7 +2,7 @@
 
 <h1>Statistics</h1>
 <%
-  response = Net::HTTP.get(URI.parse("http://localhost:7700/stats"), {"Authorization" => "Bearer #{ENV["SEARCH_TOKEN"]}"});
+  response = Net::HTTP.get(URI.parse("#{ENV["MEILISEARCH_ROOT_URL"]}/stats"), {"Authorization" => "Bearer #{ENV["MEILISEARCH_TOKEN"]}"});
   data = JSON.parse(response)
   indexes = data["indexes"]
 %>

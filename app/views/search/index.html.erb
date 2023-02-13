@@ -14,8 +14,8 @@
   elsif !params[:query].nil? && !params[:index].nil? then
     query = CGI.escape(params[:query])
     index = params[:index]
-    uri = "http://localhost:7700/indexes/#{index}/search?q=#{query}"
-    response = Net::HTTP.get(URI.parse(uri), {"Authorization" => "Bearer #{ENV["SEARCH_TOKEN"]}"});
+    uri = "#{ENV["MEILISEARCH_ROOT_URL"]}/indexes/#{index}/search?q=#{query}"
+    response = Net::HTTP.get(URI.parse(uri), {"Authorization" => "Bearer #{ENV["MEILISEARCH_TOKEN"]}"});
     data = JSON.parse(response)
     hits = data["hits"]
     concat "<h3>#{hits.length()} hits for #{query} in #{index} (Took #{data["processingTimeMs"]}ms)</h3>".html_safe
