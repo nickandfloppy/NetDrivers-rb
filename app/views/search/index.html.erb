@@ -23,7 +23,7 @@
       if index == "system" then
         concat "<a href=\"/system?id=#{hit["id"]}\">#{hit["manufacturer"]["name"]} #{hit["model"]}</a><br>".html_safe
       elsif index == "device" then
-        concat "<a href=\"/system?id=#{hit["id"]}\">#{hit["manufacturer"]["name"]} #{hit["model"]}</a><br>".html_safe
+        concat "<a href=\"/device?id=#{hit["id"]}\">#{hit["manufacturer"]["name"]} #{hit["model"]}</a><br>".html_safe
       elsif index == "driver" then
         operating_systems = []
         hit["operating_systems"].each do |os|
