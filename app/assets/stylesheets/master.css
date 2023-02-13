@@ -1,0 +1,14 @@
+body {
+    background-color: #c0c0c0;
+}
+
+table, td, th {
+    border: solid 1px;
+}
+
+div.footer {
+    bottom: 0%;
+    position: fixed;
+    width: 99%;
+    padding-bottom: 5px;
+}

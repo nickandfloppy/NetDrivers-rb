@@ -1,3 +1,5 @@
+<% content_for(:html_title) { 'Search' } %>
+
 <h1>Search</h1>
 <%= form_tag("/search", method: "get") do %>
   <%= label_tag(:query, "Search for:") %>
@@ -10,9 +12,10 @@
   if params[:query] == "" && params[:index] == "" then
     concat "Both query and index must be provided!"
   elsif !params[:query].nil? && !params[:index].nil? then
-    query = params[:query]
+    query = CGI.escape(params[:query])
     index = params[:index]
-    response = Net::HTTP.get(URI.parse("http://localhost:7700/indexes/#{index}/search?q=#{query}"), {"Authorization" => "Bearer #{ENV["SEARCH_TOKEN"]}"});
+    uri = "http://localhost:7700/indexes/#{index}/search?q=#{query}"
+    response = Net::HTTP.get(URI.parse(uri), {"Authorization" => "Bearer #{ENV["SEARCH_TOKEN"]}"});
     data = JSON.parse(response)
     hits = data["hits"]
     concat "<h3>#{hits.length()} hits for #{query} in #{index} (Took #{data["processingTimeMs"]}ms)</h3>".html_safe
@@ -26,7 +29,8 @@
         hit["operating_systems"].each do |os|
           operating_systems.append(os["name"])
         end
-        concat "<h2>#{hit["name"]} (#{hit["file"][0]["name"]})</h2><p><b>Operating Systems:</b> #{operating_systems.join(", ")}<br><a href=\"https://cms.nickandfloppy.com#{hit["file"][0]["url"]}\">Download</a></p>".html_safe
+        concat "<h2>#{hit["name"]} (#{hit["file"][0]["name"]})</h2><p><b>Operating Systems:</b> #{operating_systems.join(", ")}<br>".html_safe
+        concat "<a href=\"https://cms.nickandfloppy.com#{hit["file"][0]["url"]}\">Download</a></p>".html_safe
       else
         concat "Invalid scope!"
       end

@@ -1,18 +1,24 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>NetDrivers</title>
+    <title>
+      <% if content_for?(:html_title) %>
+        <%= yield(:html_title) %> |
+      <% end %>
+      NetDrivers
+    </title>
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
 
+    <%= stylesheet_link_tag "master" %>
     <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
     <%= javascript_importmap_tags %>
   </head>
 
   <body>
     <%= yield %>
-    <div style="bottom: 0%;position: fixed; width: 99%;">
+    <div class="footer">
       <hr>
       <address>Powered by Ruby <%=RUBY_VERSION %> and Rails <%=Rails.version %></address>
     </div>

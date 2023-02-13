@@ -1,0 +1,24 @@
+<h1>Statistics</h1>
+<%
+  response = Net::HTTP.get(URI.parse("http://localhost:7700/stats"), {"Authorization" => "Bearer #{ENV["SEARCH_TOKEN"]}"});
+  data = JSON.parse(response)
+  indexes = data["indexes"]
+%>
+<table>
+  <tr>
+    <th>Item</th>
+    <th>Count</th>
+  </tr>
+  <tr>
+    <td>Files</td>
+    <td><%=indexes["driver"]["numberOfDocuments"] %></td>
+  </tr>
+  <tr>
+    <td>Systems</td>
+    <td><%=indexes["system"]["numberOfDocuments"] %></td>
+  </tr>
+  <tr>
+    <td>Devices</td>
+    <td><%=indexes["device"]["numberOfDocuments"] %></td>
+  </tr>
+</table>
