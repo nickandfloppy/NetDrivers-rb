@@ -1,3 +1,5 @@
+<% content_for(:html_title) { 'Stats' } %>
+
 <h1>Statistics</h1>
 <%
   response = Net::HTTP.get(URI.parse("http://localhost:7700/stats"), {"Authorization" => "Bearer #{ENV["SEARCH_TOKEN"]}"});
