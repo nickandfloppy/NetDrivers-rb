@@ -7,15 +7,59 @@
     system_name = "#{data["manufacturer"]["name"]} #{data["model"]}"
     content_for(:html_title) { system_name }
     concat "<h1>#{system_name}</h1>".html_safe
+
     if data["drivers"].length() >= 1 then
+      drivers = []
       data["drivers"].each do |driver|
         drv_response = Net::HTTP.get(URI.parse("#{ENV["MEILISEARCH_ROOT_URL"]}/indexes/driver/documents/driver-#{driver["id"]}"), {"Authorization" => "Bearer #{ENV["MEILISEARCH_TOKEN"]}"});
         drv = JSON.parse(drv_response)
-        operating_systems = []
         drv["operating_systems"].each do |os|
-          operating_systems.append(os["name"])
+          if drivers.any?{|os_set| os_set[:os] == os["name"]}
+            # OS exists
+            os_idx = drivers.index{|os_set| os_set[:os] == os["name"]}
+            category_name = "No category"
+            unless drv["category"].nil?
+              # If no category specified
+              category_name = drv["category"]["name"]
+            end
+
+            if drivers[os_idx][:categories].any? { |cat_set| cat_set[:name] == category_name }
+              # If category already exists
+              drivers[os_idx][:categories][drivers[os_idx][:categories].index{|cat_set| cat_set[:name] == category_name}][:drivers].push(drv)
+            else
+              # If category does not exist
+              drivers[os_idx][:categories].push({
+                                                  "name": category_name,
+                                                  "drivers": [drv]
+                                                })
+            end
+          else
+            # OS does not exist
+            category_name = "No category"
+            unless drv["category"].nil?
+              category_name = drv["category"]["name"]
+            end
+            drivers.push({
+                           "os": os["name"],
+                           "categories": [
+                             {
+                               "name": category_name,
+                               "drivers": [drv]
+                             }
+                           ]
+                         })
+          end
         end
-       concat "<h2>#{drv["name"]} (#{drv["file"][0]["name"]})</h2><p><b>Operating Systems:</b> #{operating_systems.join(", ")}<br><a href=\"https://cms.nickandfloppy.com#{drv["file"][0]["url"]}\">Download</a></p>".html_safe
+      end
+
+      drivers.each do |driver|
+        concat "<h2>#{driver[:os]}</h2>".html_safe
+        driver[:categories].each do |category|
+          concat "<h3>#{category[:name]}</h3>".html_safe
+          category[:drivers].each do |file|
+            concat "#{file["name"]} (#{file["file"][0]["name"]}) - <a href=\"#{ENV["CMS_ROOT_URL"]}#{file["file"][0]["url"]}\">Download</a><br>".html_safe
+          end
+        end
       end
     else
       concat "<p>No files for #{data["manufacturer"]["name"]} #{data["model"]}!</p>".html_safe
