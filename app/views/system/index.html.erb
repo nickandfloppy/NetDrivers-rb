@@ -1,26 +1,28 @@
 <a href="javascript:history.go(-1)">Back to search</a><hr>
 <%
-  if !params[:id].nil? && params[:id].to_i >= 1 then
+  if !params[:id].nil? && params[:id].to_i >= 1
     id = params[:id].to_i
-    response = Net::HTTP.get(URI.parse("#{ENV["MEILISEARCH_ROOT_URL"]}/indexes/system/documents/system-#{id}"), {"Authorization" => "Bearer #{ENV["MEILISEARCH_TOKEN"]}"});
+    response = Net::HTTP.get(URI.parse("#{ENV["MEILISEARCH_ROOT_URL"]}/indexes/system/documents/system-#{id}"), {"Authorization" => "Bearer #{ENV["MEILISEARCH_TOKEN"]}"})
     data = JSON.parse(response)
     system_name = "#{data["manufacturer"]["name"]} #{data["model"]}"
     content_for(:html_title) { system_name }
     concat "<h1>#{system_name}</h1>".html_safe
 
-    if data["drivers"].length() >= 1 then
+    if data["drivers"].length >= 1
       drivers = []
       data["drivers"].each do |driver|
-        drv_response = Net::HTTP.get(URI.parse("#{ENV["MEILISEARCH_ROOT_URL"]}/indexes/driver/documents/driver-#{driver["id"]}"), {"Authorization" => "Bearer #{ENV["MEILISEARCH_TOKEN"]}"});
+        drv_response = Net::HTTP.get(URI.parse("#{ENV["MEILISEARCH_ROOT_URL"]}/indexes/driver/documents/driver-#{driver["id"]}"), {"Authorization" => "Bearer #{ENV["MEILISEARCH_TOKEN"]}"})
         drv = JSON.parse(drv_response)
         drv["operating_systems"].each do |os|
           if drivers.any?{|os_set| os_set[:os] == os["name"]}
             # OS exists
             os_idx = drivers.index{|os_set| os_set[:os] == os["name"]}
             category_name = "No category"
+            category_slug = "no-category"
             unless drv["category"].nil?
-              # If no category specified
+              # Unless no category specified
               category_name = drv["category"]["name"]
+              category_slug = drv["category"]["slug"]
             end
 
             if drivers[os_idx][:categories].any? { |cat_set| cat_set[:name] == category_name }
@@ -29,31 +31,41 @@
             else
               # If category does not exist
               drivers[os_idx][:categories].push({
-                                                  "name": category_name,
-                                                  "drivers": [drv]
-                                                })
+                "name": category_name,
+                "slug": category_slug,
+                "drivers": [drv]
+              })
             end
           else
             # OS does not exist
             category_name = "No category"
+            category_slug = "no-category"
             unless drv["category"].nil?
               category_name = drv["category"]["name"]
+              category_slug = drv["category"]["slug"]
             end
             drivers.push({
-                           "os": os["name"],
-                           "categories": [
-                             {
-                               "name": category_name,
-                               "drivers": [drv]
-                             }
-                           ]
-                         })
+              "os": os["name"],
+              "slug": os["slug"],
+              "categories": [
+                {
+                  "name": category_name,
+                  "slug": category_slug,
+                  "drivers": [drv]
+                }
+              ]
+            })
           end
         end
       end
 
+      os_list = ""
+      drivers.each { |x| os_list << "<a href=\"##{x[:slug]}\">#{x[:os]}</a>" << ', ' }
+
+      concat "<b>Operating Systems:</b> #{os_list[0...-2]}".html_safe
+      # Drivers Concat to page
       drivers.each do |driver|
-        concat "<h2>#{driver[:os]}</h2>".html_safe
+        concat "<h2 id=\"#{driver[:slug]}\">#{driver[:os]}</h2>".html_safe
         driver[:categories].each do |category|
           concat "<h3>#{category[:name]}</h3>".html_safe
           category[:drivers].each do |file|
