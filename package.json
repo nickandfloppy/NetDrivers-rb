@@ -1,0 +1,8 @@
+{
+  "name": "NetDrivers",
+  "version": "1.0.0",
+  "dependencies": {
+    "@hotwired/stimulus": "^3.2.1",
+    "controllers": "^0.0.2"
+  }
+}
